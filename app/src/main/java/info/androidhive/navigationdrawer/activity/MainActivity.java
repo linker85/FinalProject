@@ -25,7 +25,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import info.androidhive.navigationdrawer.R;
 import info.androidhive.navigationdrawer.fragment.HomeFragment;
-import info.androidhive.navigationdrawer.fragment.MoviesFragment;
+import info.androidhive.navigationdrawer.fragment.RegPayFragment;
 import info.androidhive.navigationdrawer.fragment.NotificationsFragment;
 import info.androidhive.navigationdrawer.fragment.PhotosFragment;
 import info.androidhive.navigationdrawer.fragment.SettingsFragment;
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         // Navigation view header
-        navHeader      = navigationView.getHeaderView(0);
+        navHeader = navigationView.getHeaderView(0);
         txtName        = (TextView) navHeader.findViewById(R.id.name);
         txtWebsite     = (TextView) navHeader.findViewById(R.id.website);
         imgNavHeaderBg = (ImageView) navHeader.findViewById(R.id.img_header_bg);
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                 return checkoutFragment;
             case 2:
                 // register payment fragment
-                MoviesFragment registerPaymentFragment = new MoviesFragment();
+                RegPayFragment registerPaymentFragment = new RegPayFragment();
                 return registerPaymentFragment;
             case 3:
                 // notifications fragment

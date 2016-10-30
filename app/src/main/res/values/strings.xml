@@ -41,6 +41,15 @@
     <string name="err_msg_email">Enter valid email address</string>
     <string name="err_msg_password">Enter the password</string>
 
+    <!-- String for register payment -->
+    <string name="hint_register">Enter your card number</string>
+    <string name="hint_year">Enter a valid year</string>
+    <string name="hint_month">Enter a valid month</string>
+    <string name="hint_cvv">Enter a valid cvv</string>
     <!-- String for commons -->
     <string name="save">Save</string>
+    <string name="hint_card_number">Card number</string>
+    <string name="hint_card_month">Month</string>
+    <string name="hint_card_year">Year</string>
+    <string name="hint_card_cvv">CVV</string>
 </resources>

@@ -3,12 +3,19 @@ package info.androidhive.navigationdrawer.fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 import info.androidhive.navigationdrawer.R;
+import info.androidhive.navigationdrawer.models.Notification;
+import info.androidhive.navigationdrawer.other.NotificationsAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,6 +26,11 @@ import info.androidhive.navigationdrawer.R;
  * create an instance of this fragment.
  */
 public class NotificationsFragment extends Fragment {
+
+    private RecyclerView notificationRecyclerView;
+    private ArrayList<Notification> notificationArrayList;
+    private NotificationsAdapter notificationAdapter;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -59,13 +71,46 @@ public class NotificationsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notifications, container, false);
+        final View view = inflater.inflate(R.layout.fragment_notifications, container, false);
+        // 1. get a reference to recyclerView
+        notificationRecyclerView = (RecyclerView) view.findViewById(R.id.a_notifications_recycler);
+        // 2. set layoutManger
+        notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        // 3. Get data from database
+        notificationArrayList = new ArrayList<>();
+        notificationArrayList.add(new Notification("title09", "body1", "30/10/2016"));
+        notificationArrayList.add(new Notification("title10", "body2", "30/10/2016"));
+        notificationArrayList.add(new Notification("title11", "body3", "30/10/2016"));
+        notificationArrayList.add(new Notification("title12", "body4", "30/10/2016"));
+        notificationArrayList.add(new Notification("title13", "body5", "30/10/2016"));
+        notificationArrayList.add(new Notification("title14", "body6", "30/10/2016"));
+        notificationArrayList.add(new Notification("title15", "body7", "30/10/2016"));
+        notificationArrayList.add(new Notification("title16", "body8", "30/10/2016"));
+        notificationArrayList.add(new Notification("title17", "body9", "30/10/2016"));
+        notificationArrayList.add(new Notification("title18", "body10", "30/10/2016"));
+        notificationArrayList.add(new Notification("title19", "body11", "30/10/2016"));
+
+        // 4. set adapter
+        notificationAdapter = new NotificationsAdapter(notificationArrayList);
+        notificationRecyclerView.setAdapter(notificationAdapter);
+
+        // 5. notify changes
+        notificationAdapter.notifyDataSetChanged();
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
