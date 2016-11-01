@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import info.androidhive.navigationdrawer.R;
 import info.androidhive.navigationdrawer.models.Notification;
 import info.androidhive.navigationdrawer.other.NotificationsAdapter;
+import info.androidhive.navigationdrawer.other.SimpleDecorator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -100,7 +102,9 @@ public class NotificationsFragment extends Fragment {
         // 4. set adapter
         notificationAdapter = new NotificationsAdapter(notificationArrayList);
         notificationRecyclerView.setAdapter(notificationAdapter);
-
+        notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        notificationRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        notificationRecyclerView.addItemDecoration(new SimpleDecorator(getActivity(), LinearLayoutManager.VERTICAL));
         // 5. notify changes
         notificationAdapter.notifyDataSetChanged();
 
