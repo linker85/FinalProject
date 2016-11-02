@@ -69,7 +69,7 @@ public class TutorialStep1 extends WizardStep {
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 Toast toast = Toast.makeText(getActivity(), "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
-                EventBus.getDefault().post(new UpdateStepperEvent("Hello EventBus!"));
+                EventBus.getDefault().post(new UpdateStepperEvent("continue"));
             }
         }
     }

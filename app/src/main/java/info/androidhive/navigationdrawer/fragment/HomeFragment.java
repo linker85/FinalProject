@@ -76,7 +76,7 @@ public class HomeFragment extends WizardFragment {
 
     @Override
     public void onStepChanged() {
-        Log.d("TAG", "onStepChanged: ");
+        nextButton.setEnabled(false);
     }
 
     /**
@@ -95,10 +95,8 @@ public class HomeFragment extends WizardFragment {
      */
     @Override
     public void onWizardComplete() {
-        //Do whatever you want to do once the Wizard is complete
-        //in this case I just close the activity, which causes Android
-        //to go back to the previous activity.
         getActivity().finish();
+        startActivity(getActivity().getIntent());
     }
 
 }

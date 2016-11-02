@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,16 +121,26 @@ public class RegPayFragment extends Fragment {
      * Validating form
      */
     private void submitForm() {
-        if (!validateCard()) {
+        boolean exito = false;
+
+        exito = !validateCard();
+        Log.d("TAG", "!validateCard: " + exito);
+        if (exito) {
             return;
         }
-        if (!validateMonth()) {
+        exito = !validateMonth();
+        Log.d("TAG", "!validateMonth: " + exito);
+        if (exito) {
             return;
         }
-        if (!validateYear()) {
+        exito = !validateYear();
+        Log.d("TAG", "!validateYear: " + exito);
+        if (exito) {
             return;
         }
-        if (!validateCvv()) {
+        exito = !validateCvv();
+        Log.d("TAG", "!validateCvv: " + exito);
+        if (exito) {
             return;
         }
         Toast.makeText(getView().getContext(), "Thank You!", Toast.LENGTH_SHORT).show();
@@ -141,25 +152,26 @@ public class RegPayFragment extends Fragment {
             requestFocus(inputCard);
             return false;
         } else {
-            isAlreadyRegistered = true;
-            payStatus.setText("Enter new card number to update payment method");
-            payStatus.setVisibility(View.VISIBLE);
             inputLayoutCard.setErrorEnabled(false);
+            return true;
         }
-        return true;
     }
     private boolean validateMonth() {
         if (inputMM.getText().toString().trim().isEmpty()) {
-            inputLayoutMM.setError(getString(R.string.hint_card_month));
+            inputLayoutMM.setError(getString(R.string.hint_month));
             requestFocus(inputMM);
             return false;
         } else {
-            isAlreadyRegistered = true;
-            payStatus.setText("Enter new month to update payment method");
-            payStatus.setVisibility(View.VISIBLE);
-            inputLayoutMM.setErrorEnabled(false);
+            int month = Integer.parseInt(inputMM.getText().toString());
+            if (month >= 1 && month <= 12) {
+                inputLayoutMM.setErrorEnabled(false);
+                return true;
+            } else {
+                inputLayoutMM.setError(getString(R.string.hint_month));
+                requestFocus(inputMM);
+                return false;
+            }
         }
-        return true;
     }
     private boolean validateYear() {
         if (inputYYYY.getText().toString().trim().isEmpty()) {
@@ -167,25 +179,26 @@ public class RegPayFragment extends Fragment {
             requestFocus(inputYYYY);
             return false;
         } else {
-            isAlreadyRegistered = true;
-            payStatus.setText("Enter new year to update payment method");
-            payStatus.setVisibility(View.VISIBLE);
-            inputLayoutYYYY.setErrorEnabled(false);
+            int month = Integer.parseInt(inputMM.getText().toString());
+            if (month >= 2000 && month <= 2040) {
+                inputLayoutYYYY.setErrorEnabled(false);
+                return true;
+            } else {
+                inputLayoutYYYY.setError(getString(R.string.hint_year));
+                requestFocus(inputYYYY);
+                return false;
+            }
         }
-        return true;
     }
     private boolean validateCvv() {
         if (inputCVV.getText().toString().trim().isEmpty()) {
-            inputLayoutCVV.setError(getString(R.string.hint_card_cvv));
+            inputLayoutCVV.setError(getString(R.string.hint_cvv));
             requestFocus(inputCVV);
             return false;
         } else {
-            isAlreadyRegistered = true;
-            payStatus.setText("Enter new cvv to update payment method");
-            payStatus.setVisibility(View.VISIBLE);
             inputLayoutCVV.setErrorEnabled(false);
+            return true;
         }
-        return true;
     }
 
     private static boolean isValidEmail(String email) {
