@@ -7,9 +7,9 @@
             android:icon="@drawable/ic_home_black_24dp"
             android:title="@string/nav_home" />
         <item
-            android:id="@+id/id_check_out"
+            android:id="@+id/id_more_time"
             android:icon="@drawable/ic_photo_library_black_24dp"
-            android:title="@string/nav_check_out" />
+            android:title="@string/nav_more_time" />
         <item
             android:id="@+id/id_reg_pay"
             android:icon="@drawable/ic_photo_library_black_24dp"

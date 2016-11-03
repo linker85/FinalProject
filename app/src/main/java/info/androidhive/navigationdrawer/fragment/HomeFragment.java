@@ -10,6 +10,7 @@ import android.widget.Button;
 
 import org.codepond.wizardroid.WizardFlow;
 import org.codepond.wizardroid.WizardFragment;
+import org.codepond.wizardroid.persistence.ContextVariable;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -20,6 +21,14 @@ public class HomeFragment extends WizardFragment {
 
     private Button nextButton;
     private Button previousButton;
+    /**
+     * Tell WizarDroid that these are context variables.
+     * These values will be automatically bound to any field annotated with {@link ContextVariable}.
+     * NOTE: Context Variable names are unique and therefore must
+     * have the same name wherever you wish to use them.
+     */
+    @ContextVariable
+    private boolean isCheckin;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -68,10 +77,26 @@ public class HomeFragment extends WizardFragment {
     //using WizardFlow.Builder as shown in this example
     @Override
     public WizardFlow onSetup() {
-        return new WizardFlow.Builder()
-                .addStep(TutorialStep1.class)           //Add your steps in the order you want them
-                .addStep(TutorialStep2.class)           //to appear and eventually call create()
-                .create();                              //to create the wizard flow.
+        isCheckin = false; // from database
+        bindDataFields(isCheckin);
+        Log.d("TAG", "onSetup: " + isCheckin);
+        if (isCheckin) {
+            return new WizardFlow.Builder()
+                    .addStep(TutorialStep1.class)           //Add your steps in the order you want them
+                    .addStep(TutorialStep2.class)           //to appear and eventually call create()
+                    .create();
+        } else {
+            return new WizardFlow.Builder()
+                    .addStep(TutorialStep1.class)           //Add your steps in the order you want them
+                    .create();
+        }
+        //to create the wizard flow.
+    }
+
+    private void bindDataFields(boolean isCheckin) {
+        //The values of these fields will be automatically stored in the wizard context
+        //and will be populated in the next steps only if the same field names are used.
+        this.isCheckin = isCheckin;
     }
 
     @Override

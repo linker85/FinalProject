@@ -26,6 +26,7 @@
         <activity
             android:name=".activity.PrivacyPolicyActivity"
             android:label="@string/activity_title_privacy_policy" />
+        <activity android:name=".activity.MoreTimeActivity"></activity>
     </application>
 
 </manifest>

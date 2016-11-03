@@ -27,13 +27,16 @@
 
     <Button
         android:id="@+id/scanner"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:layout_marginTop="40dp"
+        android:textColor="@android:color/white"
         android:layout_gravity="center"
         android:layout_margin="10dp"
         android:gravity="center"
         android:onClick="scanQR"
-        android:text="QR Code"
+        android:text="@string/check_in"
         android:textSize="18dp" />
 
 </FrameLayout>

@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     // tags used to attach the fragments
     private static final String ID_HOME          = "id_home";
-    private static final String ID_CHECK_OUT     = "id_check_out";
+    private static final String ID_MORE_TIME     = "id_more_time";
     private static final String ID_SIGN_OFF      = "id_sign_off";
     private static final String ID_NOTIFICATIONS = "id_notifications";
     private static final String ID_SETTINGS      = "id_settings";
@@ -205,9 +205,9 @@ public class MainActivity extends AppCompatActivity {
                 HomeFragment homeFragment = new HomeFragment();
                 return homeFragment;
             case 1:
-                // checkout
-                PhotosFragment checkoutFragment = new PhotosFragment();
-                return checkoutFragment;
+                // more time
+                PhotosFragment moreTimeFragment = new PhotosFragment();
+                return moreTimeFragment;
             case 2:
                 // register payment fragment
                 RegPayFragment registerPaymentFragment = new RegPayFragment();
@@ -254,9 +254,9 @@ public class MainActivity extends AppCompatActivity {
                         navItemIndex = 0;
                         CURRENT_TAG = ID_HOME;
                         break;
-                    case R.id.id_check_out:
+                    case R.id.id_more_time:
                         navItemIndex = 1;
-                        CURRENT_TAG = ID_CHECK_OUT;
+                        CURRENT_TAG = ID_MORE_TIME;
                         break;
                     case R.id.id_reg_pay:
                         navItemIndex = 2;

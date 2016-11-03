@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import org.codepond.wizardroid.WizardStep;
+import org.codepond.wizardroid.persistence.ContextVariable;
 import org.greenrobot.eventbus.EventBus;
 
 import info.androidhive.navigationdrawer.R;
@@ -29,6 +31,14 @@ public class TutorialStep1 extends WizardStep {
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private Button scannerBTN;
+    /**
+     * Tell WizarDroid that these are context variables.
+     * These values will be automatically bound to any field annotated with {@link ContextVariable}.
+     * NOTE: Context Variable names are unique and therefore must
+     * have the same name wherever you wish to use them.
+     */
+    @ContextVariable
+    private boolean isCheckin;
 
     //Wire the layout to the step
     public TutorialStep1() {
@@ -41,6 +51,12 @@ public class TutorialStep1 extends WizardStep {
         View view = inflater.inflate(R.layout.step_check_in, container, false);
 
         scannerBTN = (Button) view.findViewById(R.id.scanner);
+
+        if (isCheckin) {
+            scannerBTN.setText("Check in");
+        } else {
+            scannerBTN.setText("Check out");
+        }
 
         scannerBTN.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +83,13 @@ public class TutorialStep1 extends WizardStep {
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(getActivity(), "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = null;
+                Log.d("TAG", "onActivityResult: " + isCheckin);
+                if (isCheckin) {
+                    toast = Toast.makeText(getActivity(), "Check in:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                } else {
+                    toast = Toast.makeText(getActivity(), "Check out:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                }
                 toast.show();
                 EventBus.getDefault().post(new UpdateStepperEvent("continue"));
             }
