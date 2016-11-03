@@ -25,7 +25,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import info.androidhive.navigationdrawer.R;
 import info.androidhive.navigationdrawer.fragment.HomeFragment;
 import info.androidhive.navigationdrawer.fragment.NotificationsFragment;
-import info.androidhive.navigationdrawer.fragment.PhotosFragment;
 import info.androidhive.navigationdrawer.fragment.RegPayFragment;
 import info.androidhive.navigationdrawer.fragment.SettingsFragment;
 import info.androidhive.navigationdrawer.other.CircleTransform;
@@ -204,10 +203,10 @@ public class MainActivity extends AppCompatActivity {
                 // home
                 HomeFragment homeFragment = new HomeFragment();
                 return homeFragment;
-            case 1:
+            /*case 1:
                 // more time
                 PhotosFragment moreTimeFragment = new PhotosFragment();
-                return moreTimeFragment;
+                return moreTimeFragment;*/
             case 2:
                 // register payment fragment
                 RegPayFragment registerPaymentFragment = new RegPayFragment();
@@ -254,10 +253,10 @@ public class MainActivity extends AppCompatActivity {
                         navItemIndex = 0;
                         CURRENT_TAG = ID_HOME;
                         break;
-                    case R.id.id_more_time:
+/*                    case R.id.id_more_time:
                         navItemIndex = 1;
                         CURRENT_TAG = ID_MORE_TIME;
-                        break;
+                        break;*/
                     case R.id.id_reg_pay:
                         navItemIndex = 2;
                         CURRENT_TAG = ID_REG_PAY;
@@ -273,6 +272,11 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.id_sign_off:
                         navItemIndex = 5;
                         CURRENT_TAG = ID_SIGN_OFF;
+                        break;
+                    case R.id.id_more_time:
+                        // launch new intent instead of loading fragment
+                        startActivity(new Intent(MainActivity.this, MoreTimeActivity.class));
+                        drawer.closeDrawers();
                         break;
                     case R.id.nav_about_us:
                         // launch new intent instead of loading fragment
