@@ -219,9 +219,9 @@ public class MainActivity extends AppCompatActivity {
                 // settings fragment
                 SettingsFragment settingsFragment = new SettingsFragment();
                 return settingsFragment;
-            case 5:
+            /*case 5:
                 // sign off
-                return new HomeFragment();
+                return new HomeFragment();*/
             default:
                 return new HomeFragment();
         }
@@ -270,8 +270,11 @@ public class MainActivity extends AppCompatActivity {
                         CURRENT_TAG = ID_SETTINGS;
                         break;
                     case R.id.id_sign_off:
-                        navItemIndex = 5;
-                        CURRENT_TAG = ID_SIGN_OFF;
+                        /*navItemIndex = 5;
+                        CURRENT_TAG = ID_SIGN_OFF;*/
+                        finish();
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        drawer.closeDrawers();
                         break;
                     case R.id.id_more_time:
                         // launch new intent instead of loading fragment
@@ -377,7 +380,9 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
-            Toast.makeText(getApplicationContext(), "Logout user!", Toast.LENGTH_LONG).show();
+            finish();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            drawer.closeDrawers();
             return true;
         }
 
