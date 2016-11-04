@@ -1,5 +1,6 @@
 package info.androidhive.navigationdrawer.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -14,7 +15,7 @@ public class MoreTimeActivity extends AppCompatActivity {
 
     private Handler mHandler;
 
-    private boolean canExtendTime;
+    private boolean isExtend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +27,7 @@ public class MoreTimeActivity extends AppCompatActivity {
 
         mHandler = new Handler();
 
-        canExtendTime = false; // from database
+        isExtend = false; // from database
 
         loadStep2Fragment();
     }
@@ -48,7 +49,7 @@ public class MoreTimeActivity extends AppCompatActivity {
             public void run() {
 
                 Bundle bundle = new Bundle();
-                bundle.putBoolean("canExtendTime", canExtendTime);
+                bundle.putBoolean("isExtend", isExtend);
 
                 // update the main content by replacing fragments
                 Fragment fragment = new TutorialStep2();
@@ -77,7 +78,10 @@ public class MoreTimeActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == android.R.id.home) {
             // finish the activity
-            onBackPressed();
+            //onBackPressed();
+            this.finish();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
             return true;
         }
 

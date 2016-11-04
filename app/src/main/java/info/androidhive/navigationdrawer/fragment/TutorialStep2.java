@@ -14,10 +14,8 @@ import com.nineoldandroids.animation.ValueAnimator;
 
 import org.codepond.wizardroid.WizardStep;
 import org.codepond.wizardroid.persistence.ContextVariable;
-import org.greenrobot.eventbus.EventBus;
 
 import info.androidhive.navigationdrawer.R;
-import info.androidhive.navigationdrawer.other.UpdateStepperEvent;
 
 /**
  * Created by raul on 30/10/2016.
@@ -25,8 +23,9 @@ import info.androidhive.navigationdrawer.other.UpdateStepperEvent;
 
 public class TutorialStep2 extends WizardStep {
 
-    private SeekBar volumeControl;
+    private SeekBar  volumeControl;
     private TextView totalToPay;
+    private TextView snap_bar;
     private RelativeLayout relativeLayout;
 
     private static final int SNAP_MIN = 0;
@@ -40,7 +39,10 @@ public class TutorialStep2 extends WizardStep {
     private View.OnClickListener noOnClickListener;
 
     @ContextVariable
-    private boolean canExtendTime;
+    private boolean isCheckin;
+    private boolean isExtend;
+
+    private String finalMessage;
 
     //Wire the layout to the step
     public TutorialStep2() {
@@ -54,15 +56,25 @@ public class TutorialStep2 extends WizardStep {
 
         volumeControl  = (SeekBar)        v.findViewById(R.id.volume_bar);
         totalToPay     = (TextView)       v.findViewById(R.id.total_to_pay);
+        snap_bar       = (TextView)       v.findViewById(R.id.snap_bar);
         relativeLayout = (RelativeLayout) v.findViewById(R.id.parent_step);
 
-        canExtendTime = getArguments().getBoolean("canExtendTime");
+        isExtend = getArguments().getBoolean("isExtend");
 
-        if (canExtendTime) {
+        if (isExtend) {
+            isCheckin = true;
+            finalMessage = "You´ve succesfully extend your checkin time.";
+            snap_bar.setText("For how long do you wish to extend your time?");
+        } else {
+            finalMessage = "You´ve succesfully checkin.";
+        }
+
+        if (isCheckin) {
             setVolumeControlListener();
         } else {
             volumeControl.setVisibility(View.INVISIBLE);
-            totalToPay.setText("You need to Check in before extending time.");
+            totalToPay.setVisibility(View.INVISIBLE);
+            snap_bar.setText("You need to Check in before extending time.");
         }
 
         return v;
@@ -109,18 +121,20 @@ public class TutorialStep2 extends WizardStep {
                             public void onClick(View v) {
                                 if (progressChanged > 60) {
                                     if (time == 1) {
-                                        Toast.makeText(getActivity(), "Click finish to accept.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
                                     } else {
-                                        Toast.makeText(getActivity(), "Click finish to accept.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
                                     }
                                 } else {
                                     if (time == 1) {
-                                        Toast.makeText(getActivity(), "Click finish to accept.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
                                     } else {
-                                        Toast.makeText(getActivity(), "Click finish to accept.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
                                     }
                                 }
-                                EventBus.getDefault().post(new UpdateStepperEvent("finish"));
+                                getActivity().finish();
+                                startActivity(getActivity().getIntent());
+                                //EventBus.getDefault().post(new UpdateStepperEvent("finish"));
                             }
                         });
                 snackbar.show();

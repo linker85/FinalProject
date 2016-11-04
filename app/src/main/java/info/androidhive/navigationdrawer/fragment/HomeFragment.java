@@ -54,6 +54,11 @@ public class HomeFragment extends WizardFragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
         nextButton = (Button) view.findViewById(R.id.wizard_next_button);
+
+        if (!isCheckin) {
+            view.findViewById(R.id.wizard_button_bar).setVisibility(View.INVISIBLE);
+        }
+
         nextButton.setEnabled(false);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,7 +82,7 @@ public class HomeFragment extends WizardFragment {
     //using WizardFlow.Builder as shown in this example
     @Override
     public WizardFlow onSetup() {
-        isCheckin = false; // from database
+        isCheckin = true; // from database
         bindDataFields(isCheckin);
         Log.d("TAG", "onSetup: " + isCheckin);
         if (isCheckin) {
@@ -109,9 +114,11 @@ public class HomeFragment extends WizardFragment {
      */
     private void updateWizardControls() {
         previousButton.setEnabled(!wizard.isFirstStep());
-        nextButton.setText(wizard.isLastStep()
-                ? R.string.action_finish
-                : R.string.action_next);
+        if (wizard.isLastStep()) {
+            nextButton.setText("Next");
+        } else {
+            wizard.dispose();
+        }
     }
 
     /**
