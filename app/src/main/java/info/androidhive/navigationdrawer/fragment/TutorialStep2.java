@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.nineoldandroids.animation.ValueAnimator;
 
 import org.codepond.wizardroid.WizardStep;
+import org.codepond.wizardroid.persistence.ContextVariable;
 import org.greenrobot.eventbus.EventBus;
 
 import info.androidhive.navigationdrawer.R;
@@ -38,6 +39,9 @@ public class TutorialStep2 extends WizardStep {
     private View.OnClickListener yesOnClickListener;
     private View.OnClickListener noOnClickListener;
 
+    @ContextVariable
+    private boolean canExtendTime;
+
     //Wire the layout to the step
     public TutorialStep2() {
     }
@@ -48,11 +52,18 @@ public class TutorialStep2 extends WizardStep {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.step_choose_time, container, false);
 
-        volumeControl  = (SeekBar) v.findViewById(R.id.volume_bar);
-        totalToPay     = (TextView) v.findViewById(R.id.total_to_pay);
+        volumeControl  = (SeekBar)        v.findViewById(R.id.volume_bar);
+        totalToPay     = (TextView)       v.findViewById(R.id.total_to_pay);
         relativeLayout = (RelativeLayout) v.findViewById(R.id.parent_step);
 
-        setVolumeControlListener();
+        canExtendTime = getArguments().getBoolean("canExtendTime");
+
+        if (canExtendTime) {
+            setVolumeControlListener();
+        } else {
+            volumeControl.setVisibility(View.INVISIBLE);
+            totalToPay.setText("You need to Check in before extending time.");
+        }
 
         return v;
     }
