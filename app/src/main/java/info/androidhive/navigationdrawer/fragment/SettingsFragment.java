@@ -1,6 +1,8 @@
 package info.androidhive.navigationdrawer.fragment;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,15 +11,24 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import info.androidhive.navigationdrawer.R;
+import info.androidhive.navigationdrawer.activity.LoginActivity;
+import info.androidhive.navigationdrawer.models.Success;
+import info.androidhive.navigationdrawer.retrofit_helpers.SaveApiRetroFitHelper;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,10 +43,13 @@ public class SettingsFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "SettingsFragmentTAG_";
 
     private EditText inputName, inputEmail, inputPassword;
     private TextInputLayout inputLayoutName, inputLayoutEmail, inputLayoutPassword;
     private Button btn_register;
+    private TextView settingStatus;
+    private boolean isSignUp;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -77,16 +91,40 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        inputLayoutName = (TextInputLayout) getView().findViewById(R.id.input_layout_name);
-        inputLayoutEmail = (TextInputLayout) getView().findViewById(R.id.input_layout_email);
+        inputLayoutName     = (TextInputLayout) getView().findViewById(R.id.input_layout_name);
+        inputLayoutEmail    = (TextInputLayout) getView().findViewById(R.id.input_layout_email);
         inputLayoutPassword = (TextInputLayout) getView().findViewById(R.id.input_layout_password);
-        inputName = (EditText) getView().findViewById(R.id.input_name);
-        inputEmail = (EditText) getView().findViewById(R.id.input_email);
-        inputPassword = (EditText) getView().findViewById(R.id.input_password);
-        btn_register = (Button) getView().findViewById(R.id.btn_register);
+        inputName           = (EditText) getView().findViewById(R.id.input_name);
+        inputEmail          = (EditText) getView().findViewById(R.id.input_email);
+        inputPassword       = (EditText) getView().findViewById(R.id.input_password);
+        btn_register        = (Button) getView().findViewById(R.id.btn_register);
+        settingStatus       = (TextView) getView().findViewById(R.id.id_settings_status);
 
-        inputName.addTextChangedListener(new MyTextWatcher(inputName));
-        inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
+        settingStatus.setVisibility(getView().INVISIBLE);
+
+        if (getArguments() != null) {
+            isSignUp = getArguments().getBoolean("isSignUp");
+        }
+
+        if (!isSignUp) {
+            SharedPreferences sharedPref = null;
+            try {
+                sharedPref   = getActivity().getPreferences(Context.MODE_PRIVATE);
+                String email = sharedPref.getString("email", "");
+                String name  = sharedPref.getString("name", "");
+                if (email != null) {
+                    inputEmail.setText(email);
+                }
+                if (name != null) {
+                    inputName.setText(name);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        inputName    .addTextChangedListener(new MyTextWatcher(inputName));
+        inputEmail   .addTextChangedListener(new MyTextWatcher(inputEmail));
         inputPassword.addTextChangedListener(new MyTextWatcher(inputPassword));
 
         btn_register.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +151,49 @@ public class SettingsFragment extends Fragment {
             return;
         }
 
-        Toast.makeText(getView().getContext(), "Thank You!", Toast.LENGTH_SHORT).show();
+        Observable<Success> resultSaveApiObservable = SaveApiRetroFitHelper.
+                Factory.createSaveCard("581deb6b0f0000702a02daee"); // user
+        resultSaveApiObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Success>() {
+
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: " + e.getMessage());
+                        settingStatus.setText("Your USER couldn´t be registered.");
+                        settingStatus.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onNext(Success success) {
+                        Log.d(TAG, "onNext: " + success.getResult());
+                        if (success.getResult() == 1) {
+                            settingStatus.setVisibility(View.INVISIBLE);
+                            if (isSignUp) {
+                                Toast.makeText(getView().getContext(), "Your user was registered", Toast.LENGTH_LONG).show();
+                                getActivity().finish();
+                                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                startActivity(intent);
+                            } else {
+                                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                                final SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("email", inputEmail.getText().toString());
+                                editor.putString("name", inputName.getText().toString());
+                                editor.commit();
+                                Toast.makeText(getView().getContext(), "Your user settings have been updated.", Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            settingStatus.setText("Your user couldn´t be registered.");
+                            settingStatus.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
     }
 
     private boolean validateName() {
