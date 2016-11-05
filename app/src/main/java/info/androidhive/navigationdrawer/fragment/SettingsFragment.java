@@ -21,9 +21,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 import info.androidhive.navigationdrawer.R;
 import info.androidhive.navigationdrawer.activity.LoginActivity;
 import info.androidhive.navigationdrawer.models.Success;
+import info.androidhive.navigationdrawer.models.UserMock;
 import info.androidhive.navigationdrawer.retrofit_helpers.SaveApiRetroFitHelper;
 import rx.Observable;
 import rx.Subscriber;
@@ -172,8 +175,41 @@ public class SettingsFragment extends Fragment {
 
                     @Override
                     public void onNext(Success success) {
-                        Log.d(TAG, "onNext: " + success.getResult());
-                        if (success.getResult() == 1) {
+                        ////////////// Simulation of saving the user settings in the backend
+                        boolean successBack = false;
+                        String  message     = "Your user couldn´t be registered.";
+                        List<UserMock> userMocksList = UserMock.findWithQuery(UserMock.class, "SELECT * FROM USER_MOCK WHERE EMAIL = ?", inputEmail.getText().toString());
+                        if (isSignUp) {
+                            if (userMocksList != null && !userMocksList.isEmpty()) { // Update user
+                                message     = "The email that you are trying to registered is already being used.";
+                                successBack = false;
+                            } else {
+                                // Add new user
+                                UserMock userMock = new UserMock();
+                                userMock.setEmail(inputEmail.getText().toString());
+                                userMock.setPassword(inputPassword.getText().toString());
+                                userMock.save();
+                                successBack = true;
+                            }
+                        } else {
+                            if (userMocksList != null && !userMocksList.isEmpty()) { // Update user
+                                UserMock userMock = UserMock.findById(UserMock.class, userMocksList.get(0).getId());
+                                userMock.setEmail(inputEmail.getText().toString());
+                                userMock.setPassword(inputPassword.getText().toString());
+                                userMock.save();
+                                successBack = true;
+                            } else { // Add new user
+                                UserMock userMock = new UserMock();
+                                userMock.setEmail(inputEmail.getText().toString());
+                                userMock.setPassword(inputPassword.getText().toString());
+                                userMock.save();
+                                successBack = true;
+                            }
+                            settingStatus.setVisibility(View.INVISIBLE);
+                        }
+                        ////////////////////////////////////////////////////////////////////
+                        if (success.getResult() == 1 && successBack) {
+                            settingStatus.setText("");
                             settingStatus.setVisibility(View.INVISIBLE);
                             if (isSignUp) {
                                 Toast.makeText(getView().getContext(), "Your user was registered", Toast.LENGTH_LONG).show();
@@ -189,7 +225,7 @@ public class SettingsFragment extends Fragment {
                                 Toast.makeText(getView().getContext(), "Your user settings have been updated.", Toast.LENGTH_LONG).show();
                             }
                         } else {
-                            settingStatus.setText("Your user couldn´t be registered.");
+                            settingStatus.setText(message);
                             settingStatus.setVisibility(View.VISIBLE);
                         }
                     }
