@@ -16,7 +16,7 @@ import info.androidhive.navigationdrawer.R;
  * {@link PhotosFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link PhotosFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * createSaveCard an instance of this fragment.
  */
 public class PhotosFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -35,7 +35,7 @@ public class PhotosFragment extends Fragment {
     }
 
     /**
-     * Use this factory method to create a new instance of
+     * Use this factory method to createSaveCard a new instance of
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.

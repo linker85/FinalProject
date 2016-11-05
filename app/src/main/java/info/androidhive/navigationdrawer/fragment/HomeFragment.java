@@ -78,7 +78,7 @@ public class HomeFragment extends WizardFragment {
         return view;
     }
 
-    //You must override this method and create a wizard flow by
+    //You must override this method and createSaveCard a wizard flow by
     //using WizardFlow.Builder as shown in this example
     @Override
     public WizardFlow onSetup() {
@@ -88,14 +88,14 @@ public class HomeFragment extends WizardFragment {
         if (isCheckin) {
             return new WizardFlow.Builder()
                     .addStep(TutorialStep1.class)           //Add your steps in the order you want them
-                    .addStep(TutorialStep2.class)           //to appear and eventually call create()
+                    .addStep(TutorialStep2.class)           //to appear and eventually call createSaveCard()
                     .create();
         } else {
             return new WizardFlow.Builder()
                     .addStep(TutorialStep1.class)           //Add your steps in the order you want them
                     .create();
         }
-        //to create the wizard flow.
+        //to createSaveCard the wizard flow.
     }
 
     private void bindDataFields(boolean isCheckin) {

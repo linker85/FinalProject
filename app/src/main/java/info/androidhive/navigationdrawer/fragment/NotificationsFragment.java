@@ -25,7 +25,7 @@ import info.androidhive.navigationdrawer.other.SimpleDecorator;
  * {@link NotificationsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link NotificationsFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * createSaveCard an instance of this fragment.
  */
 public class NotificationsFragment extends Fragment {
 
@@ -49,7 +49,7 @@ public class NotificationsFragment extends Fragment {
     }
 
     /**
-     * Use this factory method to create a new instance of
+     * Use this factory method to createSaveCard a new instance of
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.

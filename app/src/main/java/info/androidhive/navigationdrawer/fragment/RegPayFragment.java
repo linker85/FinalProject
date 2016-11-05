@@ -20,6 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import info.androidhive.navigationdrawer.R;
+import info.androidhive.navigationdrawer.models.Success;
+import info.androidhive.navigationdrawer.retrofit_helpers.SaveApiRetroFitHelper;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,13 +33,14 @@ import info.androidhive.navigationdrawer.R;
  * {@link RegPayFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link RegPayFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * createSaveCard an instance of this fragment.
  */
 public class RegPayFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "RegPayFragmentTAG_";
 
     private EditText inputCard, inputMM, inputYYYY, inputCVV;
     private TextInputLayout inputLayoutCard, inputLayoutMM, inputLayoutYYYY, inputLayoutCVV;
@@ -53,7 +60,7 @@ public class RegPayFragment extends Fragment {
     }
 
     /**
-     * Use this factory method to create a new instance of
+     * Use this factory method to createSaveCard a new instance of
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
@@ -143,7 +150,43 @@ public class RegPayFragment extends Fragment {
         if (exito) {
             return;
         }
-        Toast.makeText(getView().getContext(), "Thank You!", Toast.LENGTH_SHORT).show();
+        Observable<Success> resultSaveApiObservable = SaveApiRetroFitHelper.
+                Factory.createSaveCard("581deb6b0f0000702a02daee"); // user
+        resultSaveApiObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Success>() {
+
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: " + e.getMessage());
+                        payStatus.setText("Your card couldn´t be registered.");
+                        payStatus.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onNext(Success success) {
+                        Log.d(TAG, "onNext: " + success.getResult());
+                        if (success.getResult() == 1) {
+                            payStatus.setText("");
+                            payStatus.setVisibility(View.INVISIBLE);
+                            inputCard.setText("");
+                            inputMM.setText("");
+                            inputYYYY.setText("");
+                            inputCVV.setText("");
+                            Toast.makeText(getView().getContext(), "Your card was registered", Toast.LENGTH_SHORT).show();
+                        } else {
+                            payStatus.setText("Your card couldn´t be registered.");
+                            payStatus.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
     }
 
     private boolean validateCard() {
@@ -174,14 +217,14 @@ public class RegPayFragment extends Fragment {
         }
     }
     private boolean validateYear() {
+        inputLayoutYYYY.setErrorEnabled(false);
         if (inputYYYY.getText().toString().trim().isEmpty()) {
             inputLayoutYYYY.setError(getString(R.string.hint_year));
             requestFocus(inputYYYY);
             return false;
         } else {
-            int month = Integer.parseInt(inputMM.getText().toString());
-            if (month >= 2000 && month <= 2040) {
-                inputLayoutYYYY.setErrorEnabled(false);
+            int year = Integer.parseInt(inputYYYY.getText().toString());
+            if (year >= 2000 && year <= 2040) {
                 return true;
             } else {
                 inputLayoutYYYY.setError(getString(R.string.hint_year));
@@ -226,6 +269,8 @@ public class RegPayFragment extends Fragment {
         }
 
         public void afterTextChanged(Editable editable) {
+            payStatus.setText("");
+            payStatus.setVisibility(View.INVISIBLE);
             switch (view.getId()) {
                 case R.id.input_name:
                     validateCard();

@@ -15,7 +15,15 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import java.util.List;
+
 import info.androidhive.navigationdrawer.R;
+import info.androidhive.navigationdrawer.models.User;
+import info.androidhive.navigationdrawer.retrofit_helpers.LoginRetrofitHelper;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -43,17 +51,20 @@ public class LoginActivity extends AppCompatActivity {
         emailSignInTxt   .addTextChangedListener(new MyTextWatcherLogin(emailSignInTxt));
         passwordSignInTxt.addTextChangedListener(new MyTextWatcherLogin(passwordSignInTxt));
 
-        SharedPreferences sharedPref;
+        SharedPreferences sharedPref = null;
         try {
-            sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            sharedPref   = this.getPreferences(Context.MODE_PRIVATE);
             defaultValue = sharedPref.getString("rem", "0");
+            if (defaultValue != null && defaultValue.equals("1")) {
+                // Do the login
+                emailSignInTxt.setText(sharedPref.getString("emailR", ""));
+                rememberMe.setChecked(true);
+            } else {
+                emailSignInTxt.setText("");
+                rememberMe.setChecked(false);
+            }
         } catch (Exception e) {
-        }
-
-        if (defaultValue != null && defaultValue.equals("1")) {
-            // Do the login
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
+            e.printStackTrace();
         }
     }
 
@@ -124,31 +135,58 @@ public class LoginActivity extends AppCompatActivity {
 
     public void doSignIn(View view) {
         boolean isValid = validateEmail() && validatePassword();
-
         Log.d(TAG, "doSignIn: ");
-
         if (isValid) {
-            Intent intent = new Intent(this, MainActivity.class);
+            final Intent intent = new Intent(this, MainActivity.class);
             SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
+            final SharedPreferences.Editor editor = sharedPref.edit();
 
-            if (emailSignInTxt.getText().toString().equalsIgnoreCase("garcia.raul@gmail.com") &&
-                    passwordSignInTxt.getText().toString().equalsIgnoreCase("admin")) {
-                if (rememberMe.isChecked()) {
-                    editor.putString("rem", "1");
-                    editor.putString("email", emailSignInTxt.getText().toString());
-                    editor.putString("password", passwordSignInTxt.getText().toString());
-                } else {
-                    editor.putString("rem", "0");
-                    editor.putString("email", "");
-                    editor.putString("password", "");
-                }
-                editor.commit();
-                startActivity(intent);
-            } else {
-                errorMessageSignIn.setText("Could not sign in");
-            }
+            Observable<List<User>> resultGithubObservable = LoginRetrofitHelper.
+                    Factory.create("581d2e490f0000030202daaa"); // user
+
+            resultGithubObservable
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<List<User>>() {
+
+                        @Override
+                        public void onCompleted() {
+                            Log.d(TAG, "onCompleted: ");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.d(TAG, "onError: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onNext(List<User> users) {
+                            Log.d(TAG, "onNext: " + users);
+                            boolean found = false;
+                            for (User user : users) {
+                                Log.d(TAG, "onNext: " + user.toString());
+                                if (emailSignInTxt.getText().toString().equalsIgnoreCase(user.getEmail()) &&
+                                        passwordSignInTxt.getText().toString().equalsIgnoreCase(user.getPassword())) {
+                                    if (rememberMe.isChecked()) {
+                                        editor.putString("rem", "1");
+                                        editor.putString("emailR", emailSignInTxt.getText().toString());
+                                    } else {
+                                        editor.putString("rem", "0");
+                                        editor.remove("emailR");
+                                    }
+                                    found = true;
+                                    editor.commit();
+                                    startActivity(intent);
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                errorMessageSignIn.setText("Invalid user or password");
+                            }
+                        }
+                    });
         }
-
     }
+
+
 }
