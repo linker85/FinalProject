@@ -141,8 +141,6 @@ public class TutorialStep2 extends WizardStep {
                         .setAction("Yes", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-
-
                                 Observable<Success> resultSaveApiObservable = SaveApiRetroFitHelper.
                                         Factory.createCheckInOut("581deb6b0f0000702a02daee"); // user
                                 resultSaveApiObservable

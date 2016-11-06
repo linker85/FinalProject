@@ -1,21 +1,31 @@
 package info.androidhive.navigationdrawer.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
+
+import java.util.List;
 
 import info.androidhive.navigationdrawer.R;
 import info.androidhive.navigationdrawer.fragment.TutorialStep2;
+import info.androidhive.navigationdrawer.models.CheckinMock;
+import info.androidhive.navigationdrawer.retrofit_helpers.LoginRetrofitHelper;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class MoreTimeActivity extends AppCompatActivity {
 
+    private static final String TAG = "MoreTimeActivityTAG_";
     private Handler mHandler;
-
-    private boolean isExtend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +37,45 @@ public class MoreTimeActivity extends AppCompatActivity {
 
         mHandler = new Handler();
 
-        isExtend = false; // from database
+        Observable<CheckinMock> resultisRegisteredObservable = LoginRetrofitHelper.
+                Factory.createIsRegistered("581deb6b0f0000702a02daee"); // user
 
-        loadStep2Fragment();
+        resultisRegisteredObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<CheckinMock>() {
+
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: " + e.getMessage());
+                        loadStep2Fragment(false);
+                    }
+
+                    @Override
+                    public void onNext(CheckinMock result) {
+                        boolean isExtend = false;
+                        /// Simulation of getting users from backend + from the database to simulate the registry of users
+                        ////////////////////////////// Simulation of cheking if the user has checkin
+                        SharedPreferences sharedPref = getApplicationContext().
+                                getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+                        String email = sharedPref.getString("email", "");
+                        List<CheckinMock> checkinMockList = CheckinMock.findWithQuery(
+                                CheckinMock.class, "SELECT * FROM CHECKIN_MOCK WHERE EMAIL=?", email);
+                        if (checkinMockList != null && !checkinMockList.isEmpty()) {
+                            result.setResult(1);
+                        } else {
+                            result.setResult(0);
+                        }
+                        /////////////////////////////////////////////////////////////////////////////
+                        isExtend = (result.getResult() == 1);
+                        loadStep2Fragment(isExtend);
+                    }
+                });
     }
 
     /***
@@ -39,7 +85,7 @@ public class MoreTimeActivity extends AppCompatActivity {
      * It also takes care of other things like changing the toolbar title, hiding / showing fab,
      * invalidating the options menu so that new menu can be loaded for different fragment.
      */
-    private void loadStep2Fragment() {
+    private void loadStep2Fragment(final boolean isExtended) {
         // Sometimes, when fragment has huge data, screen seems hanging
         // when switching between navigation menus
         // So using runnable, the fragment is loaded with cross fade effect
@@ -49,7 +95,7 @@ public class MoreTimeActivity extends AppCompatActivity {
             public void run() {
 
                 Bundle bundle = new Bundle();
-                bundle.putBoolean("isExtend", isExtend);
+                bundle.putBoolean("isExtend", isExtended);
 
                 // update the main content by replacing fragments
                 Fragment fragment = new TutorialStep2();

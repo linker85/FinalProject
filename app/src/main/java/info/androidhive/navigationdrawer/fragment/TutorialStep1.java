@@ -133,17 +133,20 @@ public class TutorialStep1 extends WizardStep {
                                     editor.putBoolean("checkin_temp", true);
                                 } else {
                                     editor.remove("checkin_temp");
-                                    //checkinMockList.get(0).delete();
+                                    checkinMockList.get(0).delete();
                                 }
                                 editor.commit();
                                 Toast toast = null;
                                 if (!isCheckout) {
                                     toast = Toast.makeText(getActivity(), "Check in was succesful", Toast.LENGTH_LONG);
+                                    toast.show();
+                                    EventBus.getDefault().post(new UpdateStepperEvent("continue"));
                                 } else {
                                     toast = Toast.makeText(getActivity(), "Check out was succesful", Toast.LENGTH_LONG);
+                                    toast.show();
+                                    getActivity().finish();
+                                    startActivity(getActivity().getIntent());
                                 }
-                                toast.show();
-                                EventBus.getDefault().post(new UpdateStepperEvent("continue"));
                             }
                         });
             }

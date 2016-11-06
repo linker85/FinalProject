@@ -34,11 +34,6 @@ public class SaveApiRetroFitHelper {
             SaveService saveService = retrofit.create(SaveService.class);
             return saveService.saveCheckInOut(key);
         }
-        public static Observable<Success> createSetTime(String key) {
-            Retrofit retrofit = createSave();
-            SaveService saveService = retrofit.create(SaveService.class);
-            return saveService.saveTime(key);
-        }
         public static Observable<Success> createSaveUser(String key) {
             Retrofit retrofit = createSave();
             SaveService saveService = retrofit.create(SaveService.class);
@@ -51,8 +46,6 @@ public class SaveApiRetroFitHelper {
         Observable<Success> saveCard(@Path("key") String key);
         @GET("/v2/{key}")
         Observable<Success> saveCheckInOut(@Path("key") String key);
-        @GET("/v2/{key}")
-        Observable<Success> saveTime(@Path("key") String key);
         @GET("/v2/{key}")
         Observable<Success> saveUser(@Path("key") String key);
     }
