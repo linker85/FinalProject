@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,16 @@ import com.nineoldandroids.animation.ValueAnimator;
 import org.codepond.wizardroid.WizardStep;
 import org.codepond.wizardroid.persistence.ContextVariable;
 
+import java.util.List;
+
 import info.androidhive.navigationdrawer.R;
+import info.androidhive.navigationdrawer.models.CheckinMock;
+import info.androidhive.navigationdrawer.models.Success;
+import info.androidhive.navigationdrawer.retrofit_helpers.SaveApiRetroFitHelper;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by raul on 30/10/2016.
@@ -25,6 +35,7 @@ import info.androidhive.navigationdrawer.R;
 
 public class TutorialStep2 extends WizardStep {
 
+    private static final String TAG = "Step2TAG_";
     private SeekBar  volumeControl;
     private TextView totalToPay;
     private TextView snap_bar;
@@ -130,22 +141,64 @@ public class TutorialStep2 extends WizardStep {
                         .setAction("Yes", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (progressChanged > 60) {
-                                    if (time == 1) {
-                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
-                                    } else {
-                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
-                                    }
-                                } else {
-                                    if (time == 1) {
-                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
-                                    } else {
-                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                                getActivity().finish();
-                                startActivity(getActivity().getIntent());
-                                //EventBus.getDefault().post(new UpdateStepperEvent("finish"));
+
+
+                                Observable<Success> resultSaveApiObservable = SaveApiRetroFitHelper.
+                                        Factory.createCheckInOut("581deb6b0f0000702a02daee"); // user
+                                resultSaveApiObservable
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new Subscriber<Success>() {
+
+                                            @Override
+                                            public void onCompleted() {
+                                                Log.d(TAG, "onCompleted: ");
+                                            }
+
+                                            @Override
+                                            public void onError(Throwable e) {
+                                                Log.d(TAG, "onError: " + e.getMessage());
+                                                totalToPay.setText("An error ocurred, your time couldn´t be set.");
+                                            }
+
+                                            @Override
+                                            public void onNext(Success success) {
+                                                CheckinMock checkinMock = null;
+                                                ///////////////////////////////////// Simulation of registering time
+                                                SharedPreferences sharedPref = getActivity().
+                                                        getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+                                                String email = sharedPref.getString("email", "");
+                                                List<CheckinMock> checkinMockList = CheckinMock.findWithQuery(
+                                                        CheckinMock.class, "SELECT * FROM CHECKIN_MOCK WHERE EMAIL=?", email);
+                                                final SharedPreferences.Editor editor = sharedPref.edit();
+                                                editor.remove("checkin_temp");
+                                                editor.commit();
+                                                if (checkinMockList != null && !checkinMockList.isEmpty()) {
+                                                    checkinMock = checkinMockList.get(0);
+                                                } else {
+                                                    checkinMock = new CheckinMock();
+                                                    checkinMock.setResult(1);
+                                                    checkinMock.setEmail(email);
+                                                }
+                                                checkinMock.save();
+                                                ////////////////////////////////////////////////////////////////////
+                                                if (progressChanged > 60) {
+                                                    if (time == 1) {
+                                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
+                                                    }
+                                                } else {
+                                                    if (time == 1) {
+                                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        Toast.makeText(getActivity(), finalMessage, Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                                getActivity().finish();
+                                                startActivity(getActivity().getIntent());
+                                            }
+                                        });
                             }
                         });
                 snackbar.show();

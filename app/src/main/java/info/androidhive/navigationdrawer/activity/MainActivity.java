@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                         isCheckout = true;
                     }
                     ////////////////////////////////////////////////////////////////////////////
-                    bundle.putBoolean("isCheckin", isCheckout);
+                    bundle.putBoolean("isCheckout", isCheckout);
                 }
 
                 // update the main content by replacing fragments
