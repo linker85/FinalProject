@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = null;
         try {
-            sharedPref   = getApplicationContext().getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);;
+            sharedPref   = getApplicationContext().getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
             defaultValue = sharedPref.getString("rem", "0");
             if (defaultValue != null && defaultValue.equals("1")) {
                 // Do the login

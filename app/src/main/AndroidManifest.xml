@@ -34,10 +34,10 @@
 
         <meta-data
             android:name="DATABASE"
-            android:value="park-meter2.db" />
+            android:value="park-meter4.db" />
         <meta-data
             android:name="VERSION"
-            android:value="2" />
+            android:value="4" />
         <meta-data
             android:name="QUERY_LOG"
             android:value="true" />

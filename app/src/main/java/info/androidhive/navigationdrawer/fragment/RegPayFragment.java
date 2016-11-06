@@ -1,6 +1,7 @@
 package info.androidhive.navigationdrawer.fragment;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,12 +20,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 import info.androidhive.navigationdrawer.R;
+import info.androidhive.navigationdrawer.models.RegisteredMock;
 import info.androidhive.navigationdrawer.models.Success;
 import info.androidhive.navigationdrawer.retrofit_helpers.SaveApiRetroFitHelper;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -40,7 +46,7 @@ public class RegPayFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private static final String TAG = "RegPayFragmentTAG_";
+    private static final String TAG        = "RegPayFragmentTAG_";
 
     private EditText inputCard, inputMM, inputYYYY, inputCVV;
     private TextInputLayout inputLayoutCard, inputLayoutMM, inputLayoutYYYY, inputLayoutCVV;
@@ -109,12 +115,34 @@ public class RegPayFragment extends Fragment {
 
         inputCard.addTextChangedListener(new RegPayFragment.MyTextWatcher(inputCard));
 
-        if (isAlreadyRegistered) {
-            payStatus.setText("Enter new card number to update payment method");
-            payStatus.setVisibility(View.VISIBLE);
-        } else {
-            payStatus.setVisibility(View.INVISIBLE);
-        }
+        getIsAlreadyRegisteredObservable()
+                .subscribeOn(Schedulers.io()) // does the work on the io thread
+                .observeOn(AndroidSchedulers.mainThread()) // returns result to the main thread
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        payStatus.setText("An error ocurred while trying to register your car.");
+                        payStatus.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onNext(Boolean aBoolean) {
+                        isAlreadyRegistered = aBoolean;
+                        if (isAlreadyRegistered) {
+                            payStatus.setText("Enter new card number to update payment method.");
+                            payStatus.setVisibility(View.VISIBLE);
+                        } else {
+                            payStatus.setText("");
+                            payStatus.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+
 
         btn_register_card.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,9 +152,42 @@ public class RegPayFragment extends Fragment {
         });
     }
 
-    /**
-     * Validating form
-     */
+    private Observable<Boolean> getIsAlreadyRegisteredObservable() {
+        //return Observable.just(getString());
+        return Observable.defer(new Func0<Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call() {
+                return Observable.just(isAlreadyRegistered());
+            }
+        });
+    }
+
+    private boolean isAlreadyRegistered() {
+        //// Simulation of checking if the card is already registered in the backend
+        SharedPreferences sharedPref = null;
+        String email = "";
+        try {
+            sharedPref = getActivity().
+                    getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+            email = sharedPref.getString("email", "");
+        } catch (Exception e) {
+
+        }
+        List<RegisteredMock> registeredMocksList = RegisteredMock.
+                findWithQuery(RegisteredMock.class,
+                        "SELECT * FROM REGISTERED_MOCK WHERE email=?", email);
+        if (registeredMocksList != null && !registeredMocksList.isEmpty()) {
+            isAlreadyRegistered = true;
+        } else {
+            isAlreadyRegistered = false;
+        }
+        return isAlreadyRegistered;
+        ///////////////////////////////////////////////////////////////////////
+    }
+
+        /**
+         * Validating form
+         */
     private void submitForm() {
         boolean exito = false;
 
@@ -172,6 +233,29 @@ public class RegPayFragment extends Fragment {
                     @Override
                     public void onNext(Success success) {
                         Log.d(TAG, "onNext: " + success.getResult());
+
+                        //// Simulation of the card being registered in the backend
+                        SharedPreferences sharedPref = null;
+                        String email = "";
+                        try {
+                            sharedPref = getActivity().
+                                    getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+                            email = sharedPref.getString("email", "");
+                        } catch (Exception e) {
+
+                        }
+                        List<RegisteredMock> registeredMocksList = RegisteredMock.
+                                findWithQuery(RegisteredMock.class,
+                                        "SELECT * FROM REGISTERED_MOCK WHERE email=?", email);
+                        RegisteredMock registeredMock = new RegisteredMock();
+                        registeredMock.setResult(success.getResult());
+                        registeredMock.setEmail(email);
+                        if (registeredMocksList != null && !registeredMocksList.isEmpty()) {
+                            registeredMock.setId(registeredMocksList.get(0).getId());
+                        }
+                        registeredMock.save();
+                        ///////////////////////////////////////////////////////////////////////
+
                         if (success.getResult() == 1) {
                             payStatus.setText("");
                             payStatus.setVisibility(View.INVISIBLE);
