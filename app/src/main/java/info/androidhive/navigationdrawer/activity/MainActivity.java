@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     // urls to load navigation header background image
     // and profile image
     private static final String urlNavHeaderBg = "http://api.androidhive.info/images/nav-menu-header-bg.jpg";
-    private static final String urlProfileImg  = "https://lh3.googleusercontent.com/eCtE_G34M9ygdkmOpYvCag1vBARCmZwnVS6rS5t4JLzJ6QgQSBquM0nuTsCpLhYbKljoyS-txg";
+    private static final String urlProfileImg  = "https://i.stack.imgur.com/JdHMQ.png?s=60&g=1";
 
     // index to identify current nav menu item
     public static int navItemIndex = 0;
@@ -121,8 +121,17 @@ public class MainActivity extends AppCompatActivity {
      */
     private void loadNavHeader() {
         // name, website
-        txtName.setText("Ravi Tamada");
-        txtWebsite.setText("www.androidhive.info");
+        txtWebsite.setText("Hello");
+        try {
+            SharedPreferences sharedPref = getApplicationContext().
+                    getSharedPreferences("my_park_meter_pref",
+                            Context.MODE_PRIVATE);
+            txtName.setText(sharedPref.getString("email", ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //txtWebsite.setText("www.androidhive.info");
 
         // loading header background image
         Glide.with(this).load(urlNavHeaderBg)
