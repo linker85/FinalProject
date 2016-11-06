@@ -112,7 +112,7 @@ public class SettingsFragment extends Fragment {
         if (!isSignUp) {
             SharedPreferences sharedPref = null;
             try {
-                sharedPref   = getActivity().getPreferences(Context.MODE_PRIVATE);
+                sharedPref   = getActivity().getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
                 String email = sharedPref.getString("email", "");
                 String name  = sharedPref.getString("name", "");
                 if (email != null) {
@@ -188,6 +188,7 @@ public class SettingsFragment extends Fragment {
                                 UserMock userMock = new UserMock();
                                 userMock.setEmail(inputEmail.getText().toString());
                                 userMock.setPassword(inputPassword.getText().toString());
+                                userMock.setName(inputName.getText().toString());
                                 userMock.save();
                                 successBack = true;
                             }
@@ -196,12 +197,14 @@ public class SettingsFragment extends Fragment {
                                 UserMock userMock = UserMock.findById(UserMock.class, userMocksList.get(0).getId());
                                 userMock.setEmail(inputEmail.getText().toString());
                                 userMock.setPassword(inputPassword.getText().toString());
+                                userMock.setName(inputName.getText().toString());
                                 userMock.save();
                                 successBack = true;
                             } else { // Add new user
                                 UserMock userMock = new UserMock();
                                 userMock.setEmail(inputEmail.getText().toString());
                                 userMock.setPassword(inputPassword.getText().toString());
+                                userMock.setName(inputName.getText().toString());
                                 userMock.save();
                                 successBack = true;
                             }
@@ -217,7 +220,7 @@ public class SettingsFragment extends Fragment {
                                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                                 startActivity(intent);
                             } else {
-                                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences sharedPref = getActivity().getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
                                 final SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("email", inputEmail.getText().toString());
                                 editor.putString("name", inputName.getText().toString());

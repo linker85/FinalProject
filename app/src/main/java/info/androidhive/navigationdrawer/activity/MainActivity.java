@@ -1,6 +1,8 @@
 package info.androidhive.navigationdrawer.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -276,6 +278,11 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.id_sign_off:
                         /*navItemIndex = 5;
                         CURRENT_TAG = ID_SIGN_OFF;*/
+                        // Remove preferences from shared
+                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        final SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.clear();
+                        editor.commit();
                         finish();
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
                         drawer.closeDrawers();
@@ -384,6 +391,12 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
+            // Remove preferences from shared
+            SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+            final SharedPreferences.Editor editor = sharedPref.edit();
+            editor.clear();
+            editor.commit();
+
             finish();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             drawer.closeDrawers();

@@ -15,6 +15,9 @@ public class User {
     @SerializedName("password")
     @Expose
     private String password;
+    @SerializedName("name")
+    @Expose
+    private String name;
 
     /**
      * 
@@ -68,6 +71,24 @@ public class User {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     *
+     * @return
+     *     The password
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     *
+     * @param name
+     *     The name
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

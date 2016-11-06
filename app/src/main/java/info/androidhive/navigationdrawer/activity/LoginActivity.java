@@ -19,6 +19,7 @@ import java.util.List;
 
 import info.androidhive.navigationdrawer.R;
 import info.androidhive.navigationdrawer.models.User;
+import info.androidhive.navigationdrawer.models.UserMock;
 import info.androidhive.navigationdrawer.retrofit_helpers.LoginRetrofitHelper;
 import rx.Observable;
 import rx.Subscriber;
@@ -53,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = null;
         try {
-            sharedPref   = this.getPreferences(Context.MODE_PRIVATE);
+            sharedPref   = getApplicationContext().getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);;
             defaultValue = sharedPref.getString("rem", "0");
             if (defaultValue != null && defaultValue.equals("1")) {
                 // Do the login
@@ -140,11 +141,9 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "doSignIn: ");
         if (isValid) {
             final Intent intent = new Intent(this, MainActivity.class);
-            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-            final SharedPreferences.Editor editor = sharedPref.edit();
 
             Observable<List<User>> resultGithubObservable = LoginRetrofitHelper.
-                    Factory.create("581d2e490f0000030202daaa"); // user
+                    Factory.create("581e710d3e0000da02c08e10"); // user
 
             resultGithubObservable
                     .subscribeOn(Schedulers.io())
@@ -163,26 +162,51 @@ public class LoginActivity extends AppCompatActivity {
 
                         @Override
                         public void onNext(List<User> users) {
-                            Log.d(TAG, "onNext: " + users);
-                            boolean found = false;
-                            for (User user : users) {
-                                Log.d(TAG, "onNext: " + user.toString());
-                                if (emailSignInTxt.getText().toString().equalsIgnoreCase(user.getEmail()) &&
-                                        passwordSignInTxt.getText().toString().equalsIgnoreCase(user.getPassword())) {
-                                    if (rememberMe.isChecked()) {
-                                        editor.putString("rem", "1");
-                                        editor.putString("emailR", emailSignInTxt.getText().toString());
-                                    } else {
-                                        editor.putString("rem", "0");
-                                        editor.remove("emailR");
-                                    }
-                                    found = true;
-                                    editor.commit();
-                                    startActivity(intent);
-                                    break;
+                            /// Simulation of getting users from backend + from the database to simulate the registry of users
+                            boolean found   = false;
+                            String name = "";
+                            String email    = "";
+                            List<UserMock> userMocksList = UserMock.findWithQuery(UserMock.class, "SELECT * FROM USER_MOCK");
+                            if (userMocksList != null && !userMocksList.isEmpty()) {
+                                for (UserMock u : userMocksList) {
+                                    User user = new User();
+                                    user.setEmail(u.getEmail());
+                                    user.setPassword(u.getPassword());
+                                    user.setName(u.getName());
+                                    users.add(user);
                                 }
                             }
-                            if (!found) {
+                            for (User user : users) {
+                                if (emailSignInTxt.getText().toString().equalsIgnoreCase(user.getEmail()) &&
+                                        passwordSignInTxt.getText().toString().equalsIgnoreCase(user.getPassword())) {
+                                    found = true;
+                                    name  = user.getName();
+                                    email = user.getEmail();
+                                    break;
+                                } else {
+                                    found = false;
+                                }
+                            }
+                            //////////////////////////////////////////////////////////////////////////////////////////////////
+                            if (found) {
+                                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+                                // Get shared preferences from mock-backend
+                                final SharedPreferences.Editor editor = sharedPref.edit();
+                                Log.d(TAG, "email: " + email);
+                                Log.d(TAG, "name: " + name);
+                                editor.putString("email", email);
+                                editor.putString("name", name);
+                                if (rememberMe.isChecked()) {
+                                    editor.putString("rem", "1");
+                                    editor.putString("emailR", emailSignInTxt.getText().toString());
+                                } else {
+                                    editor.putString("rem", "0");
+                                    editor.remove("emailR");
+                                }
+                                found = true;
+                                editor.commit();
+                                startActivity(intent);
+                            } else {
                                 errorMessageSignIn.setText("Invalid user or password");
                             }
                         }
