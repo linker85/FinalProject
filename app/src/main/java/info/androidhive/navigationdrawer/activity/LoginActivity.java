@@ -54,7 +54,8 @@ public class LoginActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = null;
         try {
-            sharedPref   = getApplicationContext().getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+            sharedPref   = getApplicationContext().
+                    getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
             defaultValue = sharedPref.getString("rem", "0");
             if (defaultValue != null && defaultValue.equals("1")) {
                 // Do the login
@@ -143,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
             final Intent intent = new Intent(this, MainActivity.class);
 
             Observable<List<User>> resultGithubObservable = LoginRetrofitHelper.
-                    Factory.create("581e710d3e0000da02c08e10"); // user
+                    Factory.createLogin("581e710d3e0000da02c08e10"); // user
 
             resultGithubObservable
                     .subscribeOn(Schedulers.io())

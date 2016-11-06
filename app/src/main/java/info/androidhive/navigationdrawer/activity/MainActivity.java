@@ -25,15 +25,19 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.stetho.Stetho;
 
+import java.util.List;
+
 import info.androidhive.navigationdrawer.R;
 import info.androidhive.navigationdrawer.fragment.HomeFragment;
 import info.androidhive.navigationdrawer.fragment.NotificationsFragment;
 import info.androidhive.navigationdrawer.fragment.RegPayFragment;
 import info.androidhive.navigationdrawer.fragment.SettingsFragment;
+import info.androidhive.navigationdrawer.models.CheckinMock;
 import info.androidhive.navigationdrawer.other.CircleTransform;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivityTAG_";
     private NavigationView navigationView;
     private DrawerLayout drawer;
     private View navHeader;
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //OneSignal.startInit(this).init();
         Stetho.initializeWithDefaults(this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -159,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
      * invalidating the options menu so that new menu can be loaded for different fragment.
      */
     private void loadHomeFragment() {
+        clearTempCheckin();
         // selecting appropriate nav menu item
         selectNavMenu();
 
@@ -182,8 +188,27 @@ public class MainActivity extends AppCompatActivity {
         Runnable mPendingRunnable = new Runnable() {
             @Override
             public void run() {
+                Bundle bundle = new Bundle();
+                if (navItemIndex == 0) {
+                    boolean isCheckout = false;
+                    ////////////////////////////// Simulation of cheking if the user has checkin
+                    SharedPreferences sharedPref = getApplicationContext().
+                            getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+                    String email = sharedPref.getString("email", "");
+                    List<CheckinMock> checkinMockList = CheckinMock.findWithQuery(
+                            CheckinMock.class, "SELECT * FROM CHECKIN_MOCK WHERE EMAIL=?", email);
+                    if (checkinMockList != null && !checkinMockList.isEmpty()) {
+                        isCheckout = true;
+                    }
+                    ////////////////////////////////////////////////////////////////////////////
+                    bundle.putBoolean("isCheckin", isCheckout);
+                }
+
                 // update the main content by replacing fragments
                 Fragment fragment = getHomeFragment();
+                if (navItemIndex == 0) {
+                    fragment.setArguments(bundle);
+                }
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
                         android.R.anim.fade_out);
@@ -213,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
     * This can be done by using the variable navItemIndex.
     * */
     private Fragment getHomeFragment() {
+        clearTempCheckin();
         switch (navItemIndex) {
             case 0:
                 // home
@@ -260,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
             // This method will trigger on item Click of navigation menu
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-
+                clearTempCheckin();
                 //Check to see which item was being clicked and perform appropriate action
                 switch (menuItem.getItemId()) {
                     //Replacing the main content with ContentFragment Which is our Inbox View;
@@ -288,7 +314,8 @@ public class MainActivity extends AppCompatActivity {
                         /*navItemIndex = 5;
                         CURRENT_TAG = ID_SIGN_OFF;*/
                         // Remove preferences from shared
-                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences sharedPref = getSharedPreferences(
+                                "my_park_meter_pref", Context.MODE_PRIVATE);
                         final SharedPreferences.Editor editor = sharedPref.edit();
                         editor.clear();
                         editor.commit();
@@ -354,6 +381,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        clearTempCheckin();
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawers();
             return;
@@ -401,7 +429,8 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
             // Remove preferences from shared
-            SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getSharedPreferences(
+                    "my_park_meter_pref", Context.MODE_PRIVATE);
             final SharedPreferences.Editor editor = sharedPref.edit();
             editor.clear();
             editor.commit();
@@ -425,6 +454,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void clearTempCheckin() {
+        // Remove preferences from shared
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(
+                "my_park_meter_pref", Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove("checkin_temp");
+        editor.commit();
     }
 
     // show or hide the fab

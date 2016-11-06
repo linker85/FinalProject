@@ -3,8 +3,10 @@ package info.androidhive.navigationdrawer.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,8 +20,17 @@ import org.codepond.wizardroid.WizardStep;
 import org.codepond.wizardroid.persistence.ContextVariable;
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.List;
+
 import info.androidhive.navigationdrawer.R;
+import info.androidhive.navigationdrawer.models.CheckinMock;
+import info.androidhive.navigationdrawer.models.Success;
 import info.androidhive.navigationdrawer.other.UpdateStepperEvent;
+import info.androidhive.navigationdrawer.retrofit_helpers.SaveApiRetroFitHelper;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -30,6 +41,7 @@ import static android.app.Activity.RESULT_OK;
 public class TutorialStep1 extends WizardStep {
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    private static final String TAG = "TutorialStep1TAG_";
     private Button scannerBTN;
     /**
      * Tell WizarDroid that these are context variables.
@@ -38,7 +50,7 @@ public class TutorialStep1 extends WizardStep {
      * have the same name wherever you wish to use them.
      */
     @ContextVariable
-    private boolean isCheckin;
+    private boolean isCheckout;
 
     //Wire the layout to the step
     public TutorialStep1() {
@@ -52,7 +64,7 @@ public class TutorialStep1 extends WizardStep {
 
         scannerBTN = (Button) view.findViewById(R.id.scanner);
 
-        if (isCheckin) {
+        if (!isCheckout) {
             scannerBTN.setText("Check in");
         } else {
             scannerBTN.setText("Check out");
@@ -83,15 +95,57 @@ public class TutorialStep1 extends WizardStep {
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = null;
-                Log.d("TAG", "onActivityResult: " + isCheckin);
-                if (isCheckin) {
-                    toast = Toast.makeText(getActivity(), "Check in:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                } else {
-                    toast = Toast.makeText(getActivity(), "Check out:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                }
-                toast.show();
-                EventBus.getDefault().post(new UpdateStepperEvent("continue"));
+
+                Log.d("TAG", "onActivityResult: " + isCheckout);
+
+                Observable<Success> resultSaveApiObservable = SaveApiRetroFitHelper.
+                        Factory.createCheckInOut("581deb6b0f0000702a02daee"); // user
+                resultSaveApiObservable
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<Success>() {
+
+                            @Override
+                            public void onCompleted() {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.d(TAG, "onError: " + e.getMessage());
+                            }
+
+                            @Override
+                            public void onNext(Success success) {
+                                ///////////////////////////////////// Simulation if checkin was done
+                                SharedPreferences sharedPref = getActivity().
+                                        getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+                                String email = sharedPref.getString("email", "");
+                                List<CheckinMock> checkinMockList = CheckinMock.findWithQuery(
+                                        CheckinMock.class, "SELECT * FROM CHECKIN_MOCK WHERE EMAIL=?", email);
+                                ////////////////////////////////////////////////////////////////////
+                                final SharedPreferences.Editor editor = sharedPref.edit();
+                                if (checkinMockList == null || checkinMockList.isEmpty()) {
+                                    /*CheckinMock checkinMock = new CheckinMock();
+                                    checkinMock.setEmail(email);
+                                    checkinMock.setResult(1);
+                                    checkinMock.save();*/
+                                    editor.putBoolean("checkin_temp", true);
+                                } else {
+                                    editor.remove("checkin_temp");
+                                    //checkinMockList.get(0).delete();
+                                }
+                                editor.commit();
+                                Toast toast = null;
+                                if (!isCheckout) {
+                                    toast = Toast.makeText(getActivity(), "Check in was succesful", Toast.LENGTH_LONG);
+                                } else {
+                                    toast = Toast.makeText(getActivity(), "Check out was succesful", Toast.LENGTH_LONG);
+                                }
+                                toast.show();
+                                EventBus.getDefault().post(new UpdateStepperEvent("continue"));
+                            }
+                        });
             }
         }
     }

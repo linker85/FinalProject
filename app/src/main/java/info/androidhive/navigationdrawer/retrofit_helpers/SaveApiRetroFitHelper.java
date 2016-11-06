@@ -17,7 +17,7 @@ public class SaveApiRetroFitHelper {
     public static final String BASE_URL = "http://www.mocky.io";
 
     public static class Factory {
-        public static Retrofit createSaveCard() {
+        public static Retrofit createSave() {
             return new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
@@ -25,22 +25,22 @@ public class SaveApiRetroFitHelper {
                     .build();
         }
         public static Observable<Success> createSaveCard(String key) {
-            Retrofit retrofit = createSaveCard();
+            Retrofit retrofit = createSave();
             SaveService saveService = retrofit.create(SaveService.class);
             return saveService.saveCard(key);
         }
         public static Observable<Success> createCheckInOut(String key) {
-            Retrofit retrofit = createSaveCard();
+            Retrofit retrofit = createSave();
             SaveService saveService = retrofit.create(SaveService.class);
             return saveService.saveCheckInOut(key);
         }
         public static Observable<Success> createSetTime(String key) {
-            Retrofit retrofit = createSaveCard();
+            Retrofit retrofit = createSave();
             SaveService saveService = retrofit.create(SaveService.class);
             return saveService.saveTime(key);
         }
         public static Observable<Success> createSaveUser(String key) {
-            Retrofit retrofit = createSaveCard();
+            Retrofit retrofit = createSave();
             SaveService saveService = retrofit.create(SaveService.class);
             return saveService.saveUser(key);
         }

@@ -1,5 +1,7 @@
 package info.androidhive.navigationdrawer.fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
@@ -60,6 +62,15 @@ public class TutorialStep2 extends WizardStep {
         relativeLayout = (RelativeLayout) v.findViewById(R.id.parent_step);
 
         isExtend = getArguments().getBoolean("isExtend");
+
+        SharedPreferences sharedPref = null;
+        try {
+            sharedPref = getActivity().
+                    getSharedPreferences("my_park_meter_pref", Context.MODE_PRIVATE);
+            isCheckin = sharedPref.getBoolean("checkin_temp", false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (isExtend) {
             isCheckin = true;

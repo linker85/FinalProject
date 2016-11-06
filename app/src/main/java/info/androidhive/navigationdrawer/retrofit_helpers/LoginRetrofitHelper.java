@@ -2,6 +2,7 @@ package info.androidhive.navigationdrawer.retrofit_helpers;
 
 import java.util.List;
 
+import info.androidhive.navigationdrawer.models.CheckinMock;
 import info.androidhive.navigationdrawer.models.User;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -27,15 +28,22 @@ public class LoginRetrofitHelper {
                     .build();
         }
 
-        public static Observable<List<User>> create(String key) {
+        public static Observable<List<User>> createLogin(String key) {
             Retrofit retrofit = create();
             LoginService loginService = retrofit.create(LoginService.class);
             return loginService.getUsers(key);
+        }
+        public static Observable<CheckinMock> createIsRegistered(String key) {
+            Retrofit retrofit = create();
+            LoginService checkedService = retrofit.create(LoginService.class);
+            return checkedService.isChecked(key);
         }
     }
 
     public interface LoginService {
         @GET("/v2/{key}")
         Observable<List<User>> getUsers(@Path("key") String key);
+        @GET("/v2/{key}")
+        Observable<CheckinMock> isChecked(@Path("key") String key);
     }
 }

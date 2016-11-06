@@ -1,5 +1,7 @@
 package info.androidhive.navigationdrawer.fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -19,6 +21,7 @@ import info.androidhive.navigationdrawer.other.UpdateStepperEvent;
 
 public class HomeFragment extends WizardFragment {
 
+    private static final String TAG = "HomeFragmentTAG_";
     private Button nextButton;
     private Button previousButton;
     /**
@@ -28,7 +31,7 @@ public class HomeFragment extends WizardFragment {
      * have the same name wherever you wish to use them.
      */
     @ContextVariable
-    private boolean isCheckin;
+    private boolean isCheckout;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -55,7 +58,7 @@ public class HomeFragment extends WizardFragment {
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
         nextButton = (Button) view.findViewById(R.id.wizard_next_button);
 
-        if (!isCheckin) {
+        if (isCheckout) {
             view.findViewById(R.id.wizard_button_bar).setVisibility(View.INVISIBLE);
         }
 
@@ -78,34 +81,42 @@ public class HomeFragment extends WizardFragment {
         return view;
     }
 
-    //You must override this method and createSaveCard a wizard flow by
+    //You must override this method and createSave a wizard flow by
     //using WizardFlow.Builder as shown in this example
     @Override
     public WizardFlow onSetup() {
-        isCheckin = true; // from database
-        bindDataFields(isCheckin);
-        Log.d("TAG", "onSetup: " + isCheckin);
-        if (isCheckin) {
+        isCheckout = getArguments().getBoolean("isCheckout");
+        bindDataFields(isCheckout);
+        Log.d("TAG", "onSetup: " + isCheckout);
+        if (!isCheckout) {
             return new WizardFlow.Builder()
                     .addStep(TutorialStep1.class)           //Add your steps in the order you want them
-                    .addStep(TutorialStep2.class)           //to appear and eventually call createSaveCard()
+                    .addStep(TutorialStep2.class)           //to appear and eventually call createSave()
                     .create();
         } else {
             return new WizardFlow.Builder()
                     .addStep(TutorialStep1.class)           //Add your steps in the order you want them
                     .create();
         }
-        //to createSaveCard the wizard flow.
+        //to createSave the wizard flow.
     }
 
-    private void bindDataFields(boolean isCheckin) {
+    private void bindDataFields(boolean isCheckout) {
         //The values of these fields will be automatically stored in the wizard context
         //and will be populated in the next steps only if the same field names are used.
-        this.isCheckin = isCheckin;
+        this.isCheckout = isCheckout;
     }
 
     @Override
     public void onStepChanged() {
+        if (wizard.isFirstStep()) {
+            // Remove preferences from shared
+            SharedPreferences sharedPref = getActivity().getSharedPreferences(
+                    "my_park_meter_pref", Context.MODE_PRIVATE);
+            final SharedPreferences.Editor editor = sharedPref.edit();
+            editor.remove("checkin_temp");
+            editor.commit();
+        }
         nextButton.setEnabled(false);
     }
 
@@ -127,6 +138,12 @@ public class HomeFragment extends WizardFragment {
      */
     @Override
     public void onWizardComplete() {
+        // Remove preferences from shared
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(
+                "my_park_meter_pref", Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove("checkin_temp");
+        editor.commit();
         getActivity().finish();
         startActivity(getActivity().getIntent());
     }

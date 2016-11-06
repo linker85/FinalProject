@@ -39,7 +39,7 @@ import rx.schedulers.Schedulers;
  * {@link SettingsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link SettingsFragment#newInstance} factory method to
- * createSaveCard an instance of this fragment.
+ * createSave an instance of this fragment.
  */
 public class SettingsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -65,7 +65,7 @@ public class SettingsFragment extends Fragment {
     }
 
     /**
-     * Use this factory method to createSaveCard a new instance of
+     * Use this factory method to createSave a new instance of
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
@@ -155,7 +155,7 @@ public class SettingsFragment extends Fragment {
         }
 
         Observable<Success> resultSaveApiObservable = SaveApiRetroFitHelper.
-                Factory.createSaveCard("581deb6b0f0000702a02daee"); // user
+                Factory.createSaveUser("581deb6b0f0000702a02daee"); // user
         resultSaveApiObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

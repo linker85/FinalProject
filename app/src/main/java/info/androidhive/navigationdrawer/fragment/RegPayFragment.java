@@ -39,7 +39,7 @@ import rx.schedulers.Schedulers;
  * {@link RegPayFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link RegPayFragment#newInstance} factory method to
- * createSaveCard an instance of this fragment.
+ * createSave an instance of this fragment.
  */
 public class RegPayFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -66,7 +66,7 @@ public class RegPayFragment extends Fragment {
     }
 
     /**
-     * Use this factory method to createSaveCard a new instance of
+     * Use this factory method to createSave a new instance of
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
